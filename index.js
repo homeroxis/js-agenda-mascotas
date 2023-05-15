@@ -6,6 +6,8 @@ const inputTelefono = document.querySelector('#telefono');
 const inputFecha = document.querySelector('#fecha');
 const inputSintomas = document.querySelector('#sintomas');
 const containerCitas = document.querySelector('#citas');
+const buttonSubmit = document.querySelector('button[type="submit"]');
+let editar;
 
 eventListaner();
 function eventListaner() {
@@ -28,6 +30,13 @@ class Citas {
   borrarCita(id) {
     this.citas = this.citas.filter( cita => cita.id !== id );
     ui.mostrarAlerta('Cita borrada exitósamente')
+  }
+  modificarCita(obj){
+    const { nombre, propietario, telefono, fecha, sintomas, id } = obj;
+    this.citas = this.citas.map( cita => cita.id === id ? obj : cita  )
+
+    console.log('desde la clase', this.citas);
+
   }
 }
 
@@ -101,7 +110,7 @@ class UI {
 let administrarCitas = new Citas();
 let ui = new UI();
 
-const citasObj = {
+const citaObj = {
   nombre: '',
   propietario: '',
   telefono: '',
@@ -122,12 +131,23 @@ function submitNuevaCita(e) {
     ui.mostrarAlerta('Campos no pueden ir vacíos', 'error');
     return;
   }
-  // asignando un id al objeto
-  citasObj.id = Date.now();
-  // mandando objeto a la clase
-  administrarCitas.agregarCita({ ...citasObj });
-  // mensaje éxito
-  ui.mostrarAlerta('Cita registrada correctamente');
+
+  if(editar){
+    editar = false;
+    buttonSubmit.innerText = 'Ingresar';
+    // mandando objeto a la clase
+    administrarCitas.modificarCita({...citaObj});
+    // mensaje éxito
+    ui.mostrarAlerta('Cita editada correctamente');
+  } else {
+     // asignando un id al objeto
+    citaObj.id = Date.now();
+    // mandando objeto a la clase
+    administrarCitas.agregarCita({ ...citaObj });
+    // mensaje éxito
+    ui.mostrarAlerta('Cita registrada correctamente');
+  }
+ 
   // resetear formulario y limpiear el objeto
   form.reset();
   limpiarObj();
@@ -137,15 +157,16 @@ function submitNuevaCita(e) {
 }
 
 function formDataObj(e) {
-  citasObj[e.target.name] = e.target.value;
+  // llena el objeto con el cambio del input
+  citaObj[e.target.name] = e.target.value;
 }
 
 function limpiarObj() {
-  citasObj.nombre = '';
-  citasObj.propietario = '';
-  citasObj.telefono = '';
-  citasObj.fecha = '';
-  citasObj.sintomas = '';
+  citaObj.nombre = '';
+  citaObj.propietario = '';
+  citaObj.telefono = '';
+  citaObj.fecha = '';
+  citaObj.sintomas = '';
 }
 
 function limpiarHTML(container) {
@@ -162,5 +183,22 @@ function eliminarCita(id) {
 
 function editarCita(cita) {
   const { nombre, propietario, telefono, fecha, sintomas, id } = cita;
+
+  editar = true;
+
+  inputName.value = nombre;
+  inputPropietario.value = propietario;
+  inputTelefono.value = telefono;
+  inputFecha.value = fecha;
+  inputSintomas.value = sintomas;
+
+  citaObj.nombre = nombre;
+  citaObj.propietario = propietario;
+  citaObj.telefono = telefono;
+  citaObj.fecha = fecha;
+  citaObj.sintomas = sintomas;
+  citaObj.id = id;
+
+  buttonSubmit.innerText = 'Editar';
   
 }
