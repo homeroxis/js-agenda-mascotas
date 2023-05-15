@@ -25,6 +25,10 @@ class Citas {
   agregarCita(cita) {
     this.citas = [...this.citas, cita];
   }
+  borrarCita(id) {
+    this.citas = this.citas.filter( cita => cita.id !== id );
+    ui.mostrarAlerta('Cita borrada exitósamente')
+  }
 }
 
 class UI {
@@ -50,7 +54,7 @@ class UI {
   imprimirCita({ citas }) {
     limpiarHTML(containerCitas);
     citas.forEach((cita) => {
-      const { nombre, propietario, telefono, fecha, sintomas } = cita;
+      const { nombre, propietario, telefono, fecha, sintomas, id } = cita;
       const divCita = document.createElement('div');
       divCita.classList.add('mb-4');
       divCita.innerHTML = `
@@ -64,19 +68,32 @@ class UI {
       `
       // crear botones
       const divBtn = document.createElement('div');
-      divBtn.classList.add('d-flex', 'justify-content-between');
-      
+      divBtn.classList.add('d-flex');
+      // crear btn eliminar
       const btnEliminar = document.createElement('button');
-      btnEliminar.classList.add('btn', 'btn-danger', 'my-2');
+      btnEliminar.classList.add('btn', 'btn-danger', 'my-2', 'me-1');
       btnEliminar.innerText = 'eliminar';
+      // crear btn editar
+      const btnEditar = document.createElement('button');
+      btnEditar.classList.add('btn', 'btn-info', 'my-2');
+      btnEditar.innerText = 'editar';
+
+      btnEliminar.onclick = () => {
+        eliminarCita(id)
+      };
+      
+      btnEditar.onclick = () => {
+        editarCita(cita)
+      };
 
       divBtn.appendChild(btnEliminar);
+      divBtn.appendChild(btnEditar);
       divCita.appendChild(divBtn);
 
 
       // mostrar en html
       containerCitas.appendChild(divCita);
-      console.log('desde forEach', cita);
+      // console.log('desde forEach', cita);
     });
   }
 }
@@ -105,10 +122,13 @@ function submitNuevaCita(e) {
     ui.mostrarAlerta('Campos no pueden ir vacíos', 'error');
     return;
   }
-
+  // asignando un id al objeto
+  citasObj.id = Date.now();
   // mandando objeto a la clase
-  ui.mostrarAlerta('Cita registrada correctamente');
   administrarCitas.agregarCita({ ...citasObj });
+  // mensaje éxito
+  ui.mostrarAlerta('Cita registrada correctamente');
+  // resetear formulario y limpiear el objeto
   form.reset();
   limpiarObj();
 
@@ -132,4 +152,15 @@ function limpiarHTML(container) {
   while (container.firstChild) {
     container.removeChild(container.firstChild);
   }
+}
+
+function eliminarCita(id) {
+  administrarCitas.borrarCita(id);
+  // imprimir cita
+  ui.imprimirCita(administrarCitas);
+}
+
+function editarCita(cita) {
+  const { nombre, propietario, telefono, fecha, sintomas, id } = cita;
+  
 }
